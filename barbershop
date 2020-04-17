@@ -1,0 +1,58 @@
+#include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <errno.h>
+#include <fnctl.>
+#include<semaphore.h>
+Semaphore Customers = 0; 
+Semaphore Barber = 0; 
+Mutex Seats = 1; 
+int FreeSeats = N; 
+  
+Barber { 
+      while(true) { 
+            /* waitin g for the customer  *///sleep
+            down(Customers); 
+  
+            /* mutex to protect and the control on number of seats.*/
+            down(Seats); 
+  
+            /* a chair gets free.*/
+            FreeSeats++; 
+             
+            /* bring the customer for haircut.*/
+            up(Barber); 
+             
+            /* release the mutex on the chair.*/
+            up(Seats); 
+            /* barber is cutting hair.*/
+      } 
+} 
+  
+Customer { 
+      while(true) { 
+            /* protects seats and apply the condition  so not more than one customer able to it 
+               in a chai.*/
+            down(Seats); //This line should not be here. 
+            if(FreeSeats > 0) { 
+                   
+                  /* sitting down.*/
+                  FreeSeats--; //decresing the value of free seats
+                   
+                  /* barber get notified */
+                  up(Customers); 
+                   
+                  /* release the lock */
+                  up(Seats); 
+                   
+                  /* wait in the waiting room if barber is busy. */
+                  down(Barber); 
+                  // customer is getting haire cut
+            } else { 
+                  /*here the  lock get released */
+                  up(Seats); 
+                  // customer vacent the seat and left
+            } 
+      } 
+} 
